@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, easeInOut } from 'framer-motion';
-import { Menu, X, ArrowRight, Zap, Search } from 'lucide-react';
+import { Menu, X} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeSwitcher } from '../ui/shadcn-io/theme-switcher';
@@ -108,7 +108,7 @@ export default function Header2() {
             </motion.div>
 {/*             {/* Navigation   */}
             <nav className="hidden items-center space-x-1 lg:flex">
-              {navItems.map((item, index) => (
+              {navItems.map((item) => (
                 <motion.div
                   key={item.name}
                   variants={itemVariants}

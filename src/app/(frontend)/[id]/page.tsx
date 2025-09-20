@@ -1,4 +1,4 @@
-import { getLat, getLong, getTrackingInfo, trackingIdExists } from '@/lib/checkExistingId';
+import { getTrackingInfo, trackingIdExists } from '@/lib/checkExistingId';
 import MapLayout from '../../../../components/map/MapLayout'; 
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';

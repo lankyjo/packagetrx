@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Plane, Truck, Clock, AlertCircle } from 'lucide-react';
+import { X, CheckCircle, Plane, Truck, Clock } from 'lucide-react';
 
 interface Toast {
   id: string;

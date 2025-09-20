@@ -69,16 +69,16 @@ const AnimatedHomepage = ({ trackDoc }: AnimatedHomepageProps) => {
     },
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [-10, 10, -10],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: easeInOut, // ✅ fixed
-      },
-    },
-  };
+//   const floatingVariants = {
+//     animate: {
+//       y: [-10, 10, -10],
+//       transition: {
+//         duration: 3,
+//         repeat: Infinity,
+//         ease: easeInOut, // ✅ fixed
+//       },
+//     },
+//   };
 
   return (
     <main className="relative overflow-x-hidden">

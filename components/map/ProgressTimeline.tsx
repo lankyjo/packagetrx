@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Circle, Plane, Package, Truck, Clock } from 'lucide-react';
+import { CheckCircle, Plane, Package, Truck, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface TimelineEvent {
@@ -32,7 +32,7 @@ const ProgressTimeline = ({
   const getTimelineEvents = (): TimelineEvent[] => {
     const startDate = new Date(shipmentStart);
     const endDate = new Date(estimatedArrival);
-    const now = new Date();
+    // const now = new Date();
     
     // Calculate intermediate timestamps
     const duration = endDate.getTime() - startDate.getTime();
@@ -142,9 +142,9 @@ const ProgressTimeline = ({
 
         {/* Timeline Events */}
         <div className="space-y-6">
-          {events.map((event, index) => {
+          {events.map((event) => {
             const Icon = event.icon;
-            const isLast = index === events.length - 1;
+            // const isLast = index === events.length - 1;
             
             return (
               <div key={event.id} className="relative flex items-start gap-4">

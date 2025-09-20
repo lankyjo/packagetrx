@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { motion} from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,18 +23,9 @@ const TrackingNotFound = () => {
   const router = useRouter();
   const [searchId, setSearchId] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [animationStep, setAnimationStep] = useState(0);
   const invalidId = params?.id as string || 'Unknown';
 
   // Animation sequence
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimationStep(prev => (prev + 1) % 4);
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
   const handleSearch = async () => {
     if (!searchId.trim()) return;
     
