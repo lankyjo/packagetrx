@@ -57,7 +57,7 @@ const TrackingForm = () => {
                         <FormItem className='flex-1'>
                             <FormControl>
                                 <Input
-                                    placeholder="TRX-XXXX"
+                                    placeholder="Enter Tracking ID e.g TRX-202509-dhl-sealed-AH1GHG"
                                     {...field}
                                     className='border-0 w-full h-full py-4 '
                                 />

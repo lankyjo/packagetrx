@@ -4,13 +4,12 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import CollapsiblePanel from './CollapsiblePanel';
 import NotificationToasts from './NotificationToasts';
-import Image from 'next/image';
 
 // Dynamic imports to avoid SSR issues with Leaflet
 const MapContainer = dynamic(() => import('./MapContainer'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center bg-gray-100">
       <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
     </div>
   )
@@ -18,9 +17,8 @@ const MapContainer = dynamic(() => import('./MapContainer'), {
 
 const MapControls = dynamic(() => import('./MapControls'), { ssr: false });
 const TrackingMarkers = dynamic(() => import('./TrackingMarkers'), { ssr: false });
-const PlaneTracker = dynamic(() => import('./PlaneTracker'), { ssr: false });
-// const RoutePolyline = dynamic(() => import('./RoutePolyline'), { ssr: false });
-const AnimatedRouteTrail = dynamic(() => import('./AnimatedRouteTrail'), { ssr: false });
+const DynamicTransportTracker = dynamic(() => import('./DynamicTransportTracker'), { ssr: false });
+const SmartRoutePolyline = dynamic(() => import('./SmartRoutePolyline'), { ssr: false });
 const OfflineMapCache = dynamic(() => import('./OfflineMapCache'), { ssr: false });
 
 interface TrackingData {
@@ -102,8 +100,8 @@ const MapLayout = ({ trackingData }: MapLayoutProps) => {
     <div className="relative w-full h-screen">
       {/* Map Container */}
       <MapContainer trackingData={trackingData}>
-        {/* Animated Route Trail */}
-        <AnimatedRouteTrail
+        {/* Smart Route (uses roads for short distances, straight for long) */}
+        <SmartRoutePolyline
           senderLat={trackingData.sender.latitude}
           senderLng={trackingData.sender.longitude}
           recipientLat={trackingData.recipient.latitude}
@@ -119,8 +117,8 @@ const MapLayout = ({ trackingData }: MapLayoutProps) => {
           packageName={trackingData.packageName}
         />
 
-        {/* Plane Tracker */}
-        <PlaneTracker
+        {/* Dynamic Transport Tracker (Truck/Plane/Ship based on distance) */}
+        <DynamicTransportTracker
           senderLat={trackingData.sender.latitude}
           senderLng={trackingData.sender.longitude}
           recipientLat={trackingData.recipient.latitude}
@@ -170,7 +168,8 @@ const MapLayout = ({ trackingData }: MapLayoutProps) => {
       {/* Optional: Branding/Logo */}
       <div className="absolute bottom-4 left-4 z-[1000]">
         <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
-        <Image src="/icon.png" width={30} height={30} alt="" />
+          <p className="text-sm font-semibold text-gray-800">Package Tracking</p>
+          <p className="text-xs text-gray-600">Real-time location updates</p>
         </div>
       </div>
     </div>

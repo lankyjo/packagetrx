@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Plane, Truck, Clock } from 'lucide-react';
 
@@ -9,8 +9,8 @@ interface Toast {
   title: string;
   message: string;
   type: 'success' | 'info' | 'warning' | 'error';
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  duration?: number;
+  icon: React.ElementType;
+  duration?: number;  
 }
 
 interface NotificationToastsProps {
@@ -22,12 +22,21 @@ interface NotificationToastsProps {
 const NotificationToasts = ({ progress, trackingId, packageName }: NotificationToastsProps) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [lastProgress, setLastProgress] = useState(0);
+  const hasShownWelcome = useRef(false);
+  const progressMilestones = useRef<Set<number>>(new Set());
+
+  // Generate unique ID
+  const generateUniqueId = (prefix: string) => {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   // Toast configurations for different progress milestones
   const getProgressToast = (newProgress: number): Toast | null => {
-    if (newProgress >= 1 && lastProgress < 1) {
+    // Check if milestone already shown
+    if (newProgress >= 1 && !progressMilestones.current.has(1)) {
+      progressMilestones.current.add(1);
       return {
-        id: `delivered-${Date.now()}`,
+        id: generateUniqueId('delivered'),
         title: 'Package Delivered! 🎉',
         message: `${packageName} has been successfully delivered`,
         type: 'success',
@@ -36,9 +45,10 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
       };
     }
     
-    if (newProgress >= 0.8 && lastProgress < 0.8) {
+    if (newProgress >= 0.8 && !progressMilestones.current.has(0.8)) {
+      progressMilestones.current.add(0.8);
       return {
-        id: `out-for-delivery-${Date.now()}`,
+        id: generateUniqueId('out-for-delivery'),
         title: 'Out for Delivery',
         message: `Your package is with the delivery driver`,
         type: 'info',
@@ -47,9 +57,10 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
       };
     }
     
-    if (newProgress >= 0.5 && lastProgress < 0.5) {
+    if (newProgress >= 0.5 && !progressMilestones.current.has(0.5)) {
+      progressMilestones.current.add(0.5);
       return {
-        id: `halfway-${Date.now()}`,
+        id: generateUniqueId('halfway'),
         title: 'Halfway There!',
         message: `Your package is 50% of the way to its destination`,
         type: 'info',
@@ -58,9 +69,10 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
       };
     }
     
-    if (newProgress >= 0.25 && lastProgress < 0.25) {
+    if (newProgress >= 0.25 && !progressMilestones.current.has(0.25)) {
+      progressMilestones.current.add(0.25);
       return {
-        id: `departed-${Date.now()}`,
+        id: generateUniqueId('departed'),
         title: 'Package Departed',
         message: `Your package has left the origin facility`,
         type: 'info',
@@ -74,7 +86,16 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
 
   // Add toast to the list
   const addToast = (toast: Toast) => {
-    setToasts(current => [...current, toast]);
+    setToasts(current => {
+      // Check if a toast with the exact same ID already exists
+      const exists = current.some(t => t.id === toast.id);
+      
+      if (exists) {
+        return current; // Don't add duplicate
+      }
+      
+      return [...current, toast];
+    });
     
     // Auto remove after duration
     setTimeout(() => {
@@ -89,28 +110,38 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
 
   // Monitor progress changes
   useEffect(() => {
-    if (progress !== lastProgress) {
+    if (progress !== lastProgress && progress > lastProgress) {
       const toast = getProgressToast(progress);
       if (toast) {
         addToast(toast);
       }
       setLastProgress(progress);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, lastProgress, packageName]);
 
-  // Welcome toast on component mount
+  // Welcome toast on component mount (only once)
   useEffect(() => {
-    const welcomeToast: Toast = {
-      id: `welcome-${Date.now()}`,
-      title: 'Tracking Active',
-      message: `Now tracking ${trackingId}`,
-      type: 'info',
-      icon: Clock,
-      duration: 3000
-    };
-    
-    setTimeout(() => addToast(welcomeToast), 1000);
-  }, [trackingId]);
+    if (!hasShownWelcome.current) {
+      hasShownWelcome.current = true;
+      
+      const welcomeToast: Toast = {
+        id: generateUniqueId('welcome'),
+        title: 'Tracking Active',
+        message: `Now tracking ${trackingId}`,
+        type: 'info',
+        icon: Clock,
+        duration: 3000
+      };
+      
+      const timer = setTimeout(() => {
+        addToast(welcomeToast);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures this runs only once
 
   const getToastStyles = (type: string) => {
     switch (type) {
@@ -143,14 +174,15 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
   };
 
   return (
-    <div className="fixed top-4 right-4 z-[1001] space-y-2 max-w-sm w-full">
-      <AnimatePresence>
+    <div className="fixed top-4 right-4 z-[1001] space-y-2 max-w-sm w-full pointer-events-none">
+      <AnimatePresence mode="popLayout">
         {toasts.map((toast) => {
           const Icon = toast.icon;
           
           return (
             <motion.div
               key={toast.id}
+              layout
               initial={{ opacity: 0, x: 300, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 300, scale: 0.9 }}
@@ -160,7 +192,7 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
                 damping: 30 
               }}
               className={`
-                relative p-4 rounded-lg shadow-lg border backdrop-blur-sm
+                relative p-4 rounded-lg shadow-lg border backdrop-blur-sm pointer-events-auto
                 ${getToastStyles(toast.type)}
               `}
             >
@@ -168,6 +200,7 @@ const NotificationToasts = ({ progress, trackingId, packageName }: NotificationT
               <button
                 onClick={() => removeToast(toast.id)}
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close notification"
               >
                 <X className="w-4 h-4" />
               </button>

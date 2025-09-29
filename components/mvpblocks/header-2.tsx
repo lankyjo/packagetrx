@@ -79,7 +79,7 @@ export default function Header2() {
   return (
     <>
       <motion.header
-        className={`fixed dark:bg-background/40 top-0 right-0 left-0 z-50 transition-all duration-500 ${
+        className={`fixed bg-white/30 dark:bg-background/40 top-0 right-0 left-0 z-5 transition-all duration-500 ${
           isScrolled
             ? 'border-border/50 bg-background/80 border-b shadow-sm backdrop-blur-md'
             : 'bg-transparent'

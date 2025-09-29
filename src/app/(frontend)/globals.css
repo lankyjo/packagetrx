@@ -126,3 +126,7 @@
   .main-header{
     font-size: clamp(1.3rem, 0.3857rem + 4.5714vw, 4.5rem);
   }
+
+  .custom-popup {
+    z-index: 1000;
+  }

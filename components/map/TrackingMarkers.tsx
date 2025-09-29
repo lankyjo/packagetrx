@@ -75,7 +75,7 @@ const TrackingMarkers = ({ sender, recipient, packageName }: TrackingMarkersProp
           },
         }}
       >
-        <Popup className="custom-popup" maxWidth={300}>
+        <Popup className="custom-popup z-10000 relative" maxWidth={300}>
           <div className="p-2">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
