@@ -2,10 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, easeInOut } from 'framer-motion';
-import { Menu, X} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeSwitcher } from '../ui/shadcn-io/theme-switcher';
+import { LoginLink } from '@kinde-oss/kinde-auth-nextjs/server';
+import { Button } from '@/components/ui/button';
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {LogoutLink} from "@kinde-oss/kinde-auth-nextjs/components";
 
 interface NavItem {
   name: string;
@@ -21,10 +32,12 @@ const navItems: NavItem[] = [
   { name: 'FAQ', href: '/faq' },
 ];
 
+
 export default function Header2() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { isAuthenticated,  } = useKindeBrowserClient();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,11 +92,10 @@ export default function Header2() {
   return (
     <>
       <motion.header
-        className={`fixed bg-white/30 dark:bg-background/40 top-0 right-0 left-0 z-5 transition-all duration-500 ${
-          isScrolled
-            ? 'border-border/50 bg-background/80 border-b shadow-sm backdrop-blur-md'
-            : 'bg-transparent'
-        }`}
+        className={`fixed bg-white/30 dark:bg-background/40 top-0 right-0 left-0 z-5 transition-all duration-500 ${isScrolled
+          ? 'border-border/50 bg-background/80 border-b shadow-sm backdrop-blur-md'
+          : 'bg-transparent'
+          }`}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -103,10 +115,10 @@ export default function Header2() {
                 className="flex items-center space-x-3"
               >
                 <Image src={'/vector/default-monochrome.svg'} alt={'logo'} width={150} height={80} className='dark:hidden' />
-                <Image src={'/vector/default-monochrome-white.svg'} alt={'logo'} width={150} height={80} className='dark:block hidden'  />
+                <Image src={'/vector/default-monochrome-white.svg'} alt={'logo'} width={150} height={80} className='dark:block hidden' />
               </Link>
             </motion.div>
-{/*             {/* Navigation   */}
+            {/*             {/* Navigation   */}
             <nav className="hidden items-center space-x-1 lg:flex">
               {navItems.map((item) => (
                 <motion.div
@@ -142,24 +154,19 @@ export default function Header2() {
             </nav>
 
             <motion.div
-              className=" justify-end space-x-3 flex flex-1"
+              className=" justify-end space-x-3 items-center flex flex-1"
               variants={itemVariants}
             >
               <motion.div
                 className="text-muted-foreground  hover:text-foreground rounded-lg p-2 transition-colors duration-200"
               >
-                <ThemeSwitcher/>
+                <ThemeSwitcher />
               </motion.div>
 
-              {/* <Link
-                prefetch={false}
-                href="/login"
-                className="text-foreground/80 hover:text-foreground px-4 py-2 text-sm font-medium transition-colors duration-200"
-              >
-                Sign In
-              </Link> */}
+<div className='max-sm:hidden'>
+              {isAuthenticated ? <AvatarDropdown /> : <LoginLink postLoginRedirectURL="/dashboard"> <Button variant={'outline'} className='cursor-pointer'>log in</Button></LoginLink>}
 
- 
+</div>              
             </motion.div>
 
             <motion.button
@@ -215,14 +222,7 @@ export default function Header2() {
                   className="border-border space-y-3 border-t pt-6"
                   variants={mobileItemVariants}
                 >
-                  <Link
-                    prefetch={false}
-                    href="/login"
-                    className="text-foreground hover:bg-muted block w-full rounded-lg py-3 text-center font-medium transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign In
-                  </Link>
+              {isAuthenticated ? <AvatarDropdown /> : <LoginLink postLoginRedirectURL="/dashboard"> <Button variant={'outline'} className='cursor-pointer'>log in</Button></LoginLink>}
                 </motion.div>
               </div>
             </motion.div>
@@ -231,4 +231,38 @@ export default function Header2() {
       </AnimatePresence>
     </>
   );
+}
+
+
+const AvatarDropdown = () => {
+  const { user, isLoading } = useKindeBrowserClient();
+
+  let firstInitial = user?.family_name?.[0] || '';
+  let lastInitial = user?.given_name?.[0] || '';
+  console.log(user?.picture)
+
+  if (isLoading) {
+    firstInitial = 'I';
+    lastInitial = 'D';
+  }
+
+  const userInitials = firstInitial + lastInitial;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className='cursor-pointer'>
+        <Avatar>
+          <AvatarImage src={user?.picture || ''} />
+          <AvatarFallback>{userInitials}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard">Dashboard</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem className='bg-red-600 hover:bg-red-500'>
+            <LogoutLink>Logout</LogoutLink>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }

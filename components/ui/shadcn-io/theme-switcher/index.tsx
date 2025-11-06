@@ -41,7 +41,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
     return (
       <div
         className={cn(
-          'relative isolate flex h-8 rounded-full bg-background p-1 ring-1 ring-border',
+          'relative isolate flex rounded-full bg-background p-1 ring-1 ring-border',
           className
         )}
       >
@@ -56,7 +56,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
   return (
     <div
       className={cn(
-        'relative isolate flex h-8 rounded-full bg-background p-1 ring-1 ring-border',
+        'relative isolate flex justify-center items-center rounded-full max-sm:gap-x-2 bg-background p-1 ring-1 ring-border',
         className
       )}
     >
@@ -66,7 +66,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
         return (
           <button
             aria-label={label}
-            className="relative h-6 w-6 rounded-full"
+            className="relative max-sm:h-3 max-sm:w-3 h-8 w-8 rounded-full"
             key={key}
             onClick={() => setTheme(key)}
             type="button"
@@ -80,7 +80,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
             )}
             <Icon
               className={cn(
-                'relative z-10 m-auto h-4 w-4',
+                'relative z-10 m-auto max-sm:h-3 max-sm:w-3 h-4 w-4',
                 isActive ? 'text-foreground' : 'text-muted-foreground'
               )}
             />

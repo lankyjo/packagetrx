@@ -71,7 +71,7 @@ const MapControls = ({
     <TooltipProvider>
       <div className="fixed left-4 top-20 z-[1000] flex flex-col gap-2">
         {/* Zoom Controls */}
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white w-fit rounded-lg shadow-lg border border-gray-200 overflow-hidden">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

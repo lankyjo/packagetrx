@@ -4,8 +4,8 @@ import { motion, easeInOut } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Highlighter } from '@/components/magicui/highlighter';
-import TrackingForm from './TrackingForm';
-import Marque from './Marquee';
+import dynamic from "next/dynamic";
+const TrackingForm = dynamic(() => import("./TrackingForm"), { ssr: false });import Marque from './Marquee';
 import { Package, Truck, MapPin, Clock } from 'lucide-react';
 
 interface AnimatedHomepageProps {
@@ -140,7 +140,7 @@ const AnimatedHomepage = ({ trackDoc }: AnimatedHomepageProps) => {
       </div>
 
       <motion.section 
-        className="min-h-dvh container max-sm:px-4 mx-auto flex flex-col gap-6  justify-center items-center max-xs:pt-20 xs:pt-8 relative  z-10"
+        className="min-h-dvh container max-sm:px-4 mx-auto flex flex-col gap-6  justify-center items-center max-xs:pt-20 xs:pt-8 relative"
         variants={containerVariants}
         initial="hidden"
         animate={isVisible ? "visible" : "hidden"}

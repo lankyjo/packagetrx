@@ -117,7 +117,7 @@ const TrackingNotFound = () => {
                   <Button 
                     onClick={handleSearch}
                     disabled={!searchId.trim() || isSearching}
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    className=""
                   >
                     {isSearching ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -168,7 +168,7 @@ const TrackingNotFound = () => {
                 
                 <Button
                   onClick={() => router.push('/')}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                  className="flex-1"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Home

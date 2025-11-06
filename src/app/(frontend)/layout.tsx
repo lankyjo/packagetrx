@@ -5,6 +5,7 @@ import { ThemeProvider } from '../../../components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import 'leaflet/dist/leaflet.css';
 import { Metadata } from 'next'
+import { KindeProvider } from '@kinde-oss/kinde-auth-nextjs'
 
 export const metadata: Metadata = {
   // Basic Metadata
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     template: '%s | PackageTrx'
   },
   description: 'Track your packages in real-time with interactive maps, live updates, and AI-powered delivery predictions. Monitor shipments globally with our advanced tracking system featuring road routing, air freight tracking, and instant notifications.',
-  
+
   // Keywords for SEO
   keywords: [
     'package tracking',
@@ -40,9 +41,9 @@ export const metadata: Metadata = {
 
   // Authors
   authors: [
-    { name: 'Ikeji Joshua',}
+    { name: 'Ikeji Joshua', }
   ],
-  
+
   creator: 'Ikeji Joshua',
 
   // Open Graph (Facebook, LinkedIn, etc.)
@@ -124,20 +125,21 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta name="apple-mobile-web-app-title" content="PackageTrx" />
-      </head>
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="min-h-screen w-full  isolate relative">
-            {/* Bottom Fade Grid Background */}
-            {/* <div
+    <KindeProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <meta name="apple-mobile-web-app-title" content="PackageTrx" />
+        </head>
+        <body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="min-h-screen w-full  isolate relative">
+              {/* Bottom Fade Grid Background */}
+              {/* <div
               className="absolute inset-0 dark:opacity-5 -z-1"
               style={{
                 backgroundImage: `
@@ -151,14 +153,15 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                   "radial-gradient(ellipse 70% 60% at 50% 100%, #000 60%, transparent 100%)",
               }}
             /> */}
-            {/* Your Content/Components */}
-            <Header2 />
-            <main>{children}</main>
-            <Toaster />
-          </div>
-        </ThemeProvider>
-      </body>
-    </html>
+              {/* Your Content/Components */}
+              <Header2 />
+              <main>{children}</main>
+              <Toaster />
+            </div>
+          </ThemeProvider>
+        </body>
+      </html>
+    </KindeProvider>
   )
 }
 

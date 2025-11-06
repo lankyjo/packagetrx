@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { toast } from "sonner"
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
 const formSchema = z.object({
     trackingID: z.string().min(2).max(50).startsWith("TRX-", "TrackingID must start with TRX"),
@@ -16,7 +17,10 @@ const formSchema = z.object({
 
 const TrackingForm = () => {
         const router = useRouter();
-
+    const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+    useEffect(() => {
+setIsSubmitting(false);
+    }, [])
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -26,6 +30,7 @@ const TrackingForm = () => {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        setIsSubmitting(true);
         router.push(`/${values.trackingID}`)
     }
 
@@ -65,7 +70,7 @@ const TrackingForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className='h-11/12 cursor-pointer'>Submit</Button>
+                <Button type="submit" className='h-11/12 cursor-pointer'>{isSubmitting? <Loader2 className='animate-spin'/> : "Track"}</Button>
             </form>
         </Form>
     )
