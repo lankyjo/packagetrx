@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -33,8 +33,8 @@ const formSchema = z.object({
   recipientPhone: z.string().min(10, 'Valid phone number required'),
   recipientEmail: z.string().email('Valid email required'),
   recipientAddress: z.string().min(10, 'Complete address required').max(500),
-  dateReceived: z.date({ error: 'Date received is required' }),
-  dateDelivered: z.date({ error: 'Estimated delivery date is required' }),
+  dateReceived: z.date({ message: 'Date received is required' }),
+  dateDelivered: z.date({ message: 'Estimated delivery date is required' }),
   assignedDriver: z.string().min(2, 'Driver name is required'),
   driverContact: z.string().min(10, 'Driver contact is required'),
 })
@@ -47,8 +47,36 @@ type GeocodingState = {
   message: string
 }
 
+interface TrackingData {
+  id: string;
+  packageName: string;
+  weight?: number;
+  length?: number;
+  width?: number;
+  height?: number;
+  declaredValue?: number;
+  sender: {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+  };
+  recipient: {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+  };
+  dateReceived: string;
+  dateDelivered: string;
+  assignedDriver: string;
+  driverContact: string;
+}
+
 interface CreateTrackingFormProps {
-  onSuccess?: () => void
+  onSuccess?: () => void;
+  editData?: TrackingData;
+  isEditMode?: boolean;
 }
 
 const geocodeAddress = async (address: string): Promise<boolean> => {
@@ -75,21 +103,21 @@ const geocodeAddress = async (address: string): Promise<boolean> => {
   }
 }
 
-const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
+const CreateTrackingForm = ({ onSuccess, editData, isEditMode = false }: CreateTrackingFormProps) => {
   const { user } = useKindeBrowserClient()
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   
   const [senderGeoState, setSenderGeoState] = React.useState<GeocodingState>({
     isValidating: false,
-    isValid: null,
-    message: '',
+    isValid: isEditMode ? true : null,
+    message: isEditMode ? '✓ Address verified and can be geocoded' : '',
   })
   
   const [recipientGeoState, setRecipientGeoState] = React.useState<GeocodingState>({
     isValidating: false,
-    isValid: null,
-    message: '',
+    isValid: isEditMode ? true : null,
+    message: isEditMode ? '✓ Address verified and can be geocoded' : '',
   })
 
   const debounceTimerRef = React.useRef<{ sender: NodeJS.Timeout | null; recipient: NodeJS.Timeout | null }>({
@@ -97,9 +125,30 @@ const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
     recipient: null,
   })
 
-  const { register, handleSubmit, reset, formState: { errors }, watch, control } = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as Resolver<FormValues>,
-    defaultValues: {
+  const getDefaultValues = (): Partial<FormValues> => {
+    if (isEditMode && editData) {
+      return {
+        packageName: editData.packageName,
+        weight: editData.weight ?? undefined,
+        length: editData.length ?? undefined,
+        width: editData.width ?? undefined,
+        height: editData.height ?? undefined,
+        declaredValue: editData.declaredValue ?? undefined,
+        senderName: editData.sender.name,
+        senderPhone: editData.sender.phone,
+        senderEmail: editData.sender.email,
+        senderAddress: editData.sender.address,
+        recipientName: editData.recipient.name,
+        recipientPhone: editData.recipient.phone,
+        recipientEmail: editData.recipient.email,
+        recipientAddress: editData.recipient.address,
+        dateReceived: parse(editData.dateReceived, 'yyyy-MM-dd', new Date()),
+        dateDelivered: parse(editData.dateDelivered, 'yyyy-MM-dd', new Date()),
+        assignedDriver: editData.assignedDriver,
+        driverContact: editData.driverContact,
+      }
+    }
+    return {
       packageName: '',
       senderName: '',
       declaredValue: undefined,
@@ -112,7 +161,12 @@ const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
       recipientAddress: '',
       assignedDriver: '',
       driverContact: '',
-    },
+    }
+  }
+
+  const { register, handleSubmit, reset, formState: { errors }, watch, control } = useForm<FormValues>({
+    resolver: zodResolver(formSchema) as Resolver<FormValues>,
+    defaultValues: getDefaultValues(),
   })
 
   const senderAddress = watch('senderAddress')
@@ -156,27 +210,31 @@ const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
   }
 
   React.useEffect(() => {
-    if (senderAddress && senderAddress.length >= 10) {
-      debouncedValidate(senderAddress, 'sender')
-    } else {
-      setSenderGeoState({ isValidating: false, isValid: null, message: '' })
+    if (!isEditMode) {
+      if (senderAddress && senderAddress.length >= 10) {
+        debouncedValidate(senderAddress, 'sender')
+      } else {
+        setSenderGeoState({ isValidating: false, isValid: null, message: '' })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [senderAddress])
+  }, [senderAddress, isEditMode])
 
   React.useEffect(() => {
-    if (recipientAddress && recipientAddress.length >= 10) {
-      debouncedValidate(recipientAddress, 'recipient')
-    } else {
-      setRecipientGeoState({ isValidating: false, isValid: null, message: '' })
+    if (!isEditMode) {
+      if (recipientAddress && recipientAddress.length >= 10) {
+        debouncedValidate(recipientAddress, 'recipient')
+      } else {
+        setRecipientGeoState({ isValidating: false, isValid: null, message: '' })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipientAddress])
+  }, [recipientAddress, isEditMode])
 
   React.useEffect(() => {
     return () => {
       if (debounceTimerRef.current.sender) clearTimeout(debounceTimerRef.current.sender)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line
       if (debounceTimerRef.current.recipient) clearTimeout(debounceTimerRef.current.recipient)
     }
   }, [])
@@ -214,31 +272,36 @@ const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
         dateDelivered: format(values.dateDelivered, 'yyyy-MM-dd'),
       }
 
-      const response = await fetch('/api/createTrackingID', {
-        method: 'POST',
+      const endpoint = '/api/createTrackingID'
+      const method = isEditMode ? 'PATCH' : 'POST'
+      const body = isEditMode 
+        ? { id: editData?.id, ...submitData }
+        : { userId: user.id, ...submitData }
+
+      const response = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, ...submitData }),
+        body: JSON.stringify(body),
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to create tracking info')
+      if (!response.ok) throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'create'} tracking info`)
 
-      // Show success toast
-      toast.success(`Tracking ID created: ${data.data.trackingID}`, {
-        duration: 4000,
-      })
+      toast.success(
+        isEditMode 
+          ? 'Tracking info updated successfully' 
+          : `Tracking ID created: ${data.data.trackingID}`,
+        { duration: 4000 }
+      )
       
-      // Reset form and states
       reset()
       setSenderGeoState({ isValidating: false, isValid: null, message: '' })
       setRecipientGeoState({ isValidating: false, isValid: null, message: '' })
       
-      // Close sheet after a brief delay to show the toast
       setTimeout(() => {
         onSuccess?.()
       }, 500)
       
-      // Refresh the page data
       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Something went wrong')
@@ -520,7 +583,7 @@ const CreateTrackingForm = ({ onSuccess }: CreateTrackingFormProps) => {
         disabled={!canSubmit}
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? 'Creating...' : 'Create Tracking Info'}
+        {isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Tracking Info' : 'Create Tracking Info')}
       </button>
     </form>
   )

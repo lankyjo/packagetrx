@@ -9,8 +9,9 @@ import { Package, MapPin, Calendar, User, TrendingUp, Clock } from 'lucide-react
 import { FaArrowRight } from 'react-icons/fa';
 
 import { CreateTrackingSheet } from './components/CreateTrackingSheet'; 
+import { TrackingCardActions } from './components/TrackingCardActions';
+import Link from 'next/link';
 
-// --- Utility: Dynamic Greeting Function ---
 
 const generateRandomGreeting = (name: string) => {
   const hour = new Date().getHours();
@@ -182,11 +183,16 @@ const TrackingCard = ({
             )}
           </div>
           <CardTitle className="text-sm font-bold truncate">
-            {info.trackingID}
+            <Link href={`/${info.trackingID}`}>
+              {info.trackingID}
+            </Link>
           </CardTitle>
           <p className="text-xs text-muted-foreground mt-0.5 truncate">{info.packageName}</p>
         </div>
-        <Package className="h-5 w-5 text-slate-400 flex-shrink-0" />
+        <div className="flex items-center gap-1">
+          <Package className="h-5 w-5 text-slate-400 flex-shrink-0" />
+          <TrackingCardActions trackingData={info} />
+        </div>
       </div>
     </CardHeader>
     
