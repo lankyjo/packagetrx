@@ -156,7 +156,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
               {/* Your Content/Components */}
               <Header2 />
               <main>{children}</main>
-              <Toaster />
+              <Toaster richColors position='top-left'/>
             </div>
           </ThemeProvider>
         </body>

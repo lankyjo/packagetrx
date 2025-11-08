@@ -168,6 +168,7 @@ export interface Trackinginfo {
    * Auto-generated unique tracking identifier
    */
   trackingID: string;
+  userId?: string | null;
   packageName: string;
   /**
    * Weight in kg
@@ -337,6 +338,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface TrackinginfoSelect<T extends boolean = true> {
   trackingID?: T;
+  userId?: T;
   packageName?: T;
   weight?: T;
   length?: T;

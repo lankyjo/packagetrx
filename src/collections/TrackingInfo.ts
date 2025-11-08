@@ -114,6 +114,13 @@ export const TrackingInfo: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'userId',
+      type: 'text',
+      admin: {
+        readOnly: true
+      }
+    },
 
     // Package Information
     {

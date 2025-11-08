@@ -34,15 +34,15 @@ interface TrackingData {
 }
 
 // Loading component for better UX
-const TrackingLoader = () => (
-  <div className="w-full h-screen flex items-center justify-center ">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-      <h2 className="text-xl font-semibold text-gray-700 mb-2">Loading Tracking Information</h2>
-      <p className="text-gray-500">Please wait while we fetch your package details...</p>
-    </div>
-  </div>
-);
+// const TrackingLoader = () => (
+//   <div className="w-full h-screen flex items-center justify-center ">
+//     <div className="text-center">
+//       <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+//       <h2 className="text-xl font-semibold text-gray-700 mb-2">Loading Tracking Information</h2>
+//       <p className="text-gray-500">Please wait while we fetch your package details...</p>
+//     </div>
+//   </div>
+// );
 
 const MapPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
@@ -50,7 +50,7 @@ const MapPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   // Validate tracking ID format (optional)
   const trackingIdPattern = /^[A-Z]{3}-\d{6}-[a-zA-Z0-9-]+$/;
   if (!trackingIdPattern.test(id)) {
-    notFound();
+    <TrackingNotFound/>
   }
   
   try {
@@ -139,7 +139,7 @@ const MapPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     };
 
     return (
-      <Suspense fallback={<TrackingLoader />}>
+      <Suspense>
         <MapLayout trackingData={trackingData} />
       </Suspense>
     );
